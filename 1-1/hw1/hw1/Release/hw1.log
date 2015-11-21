@@ -1,0 +1,14 @@
+﻿已經開始建置於 2015/11/1 下午 11:18:51。
+     1>節點 2 (Build 目標) 上的專案 "D:\Course\三下\計算機圖學概論\homework\hw1\hw1\hw1\hw1.vcxproj"。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp mesh.cpp
+         main.cpp
+     1>main.cpp(2): fatal error C1083: 無法開啟包含檔案: 'glut.h': No such file or directory
+         mesh.cpp
+     1>mesh.cpp(43): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : 請參閱 'fopen' 的宣告
+     1>專案 "D:\Course\三下\計算機圖學概論\homework\hw1\hw1\hw1\hw1.vcxproj" (Build 目標) 建置完成 -- 失敗。
+
+建置失敗。
+
+經過時間 00:00:00.37
