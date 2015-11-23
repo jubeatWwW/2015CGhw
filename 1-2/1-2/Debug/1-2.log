@@ -1,13 +1,13 @@
-﻿已經開始建置於 2015/11/22 上午 06:35:40。
+﻿已經開始建置於 2015/11/23 下午 12:35:29。
      1>節點 2 (Build 目標) 上的專案 "D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\1-2\1-2.vcxproj"。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\1-2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt "Object'.cpp"
-         Object'.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\1-2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Object.cpp
+         Object.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\lib" glut32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.lib" /MACHINE:X86 "Debug\1-2.obj"
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\lib" glut32.lib glew32s.lib FreeImage.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.lib" /MACHINE:X86 "Debug\1-2.obj"
          Debug\Light.obj
          Debug\mesh.obj
-         "Debug\Object'.obj"
+         Debug\Object.obj
          Debug\stdafx.obj
          Debug\View.obj
          1-2.vcxproj -> D:\Course\三下\計算機圖學概論\homework\hw1-2\1-2\Debug\1-2.exe
@@ -15,4 +15,4 @@
 
 建置成功。
 
-經過時間 00:00:00.28
+經過時間 00:00:00.27

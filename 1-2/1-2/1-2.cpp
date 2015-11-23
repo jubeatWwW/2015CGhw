@@ -12,16 +12,20 @@
 *    \/_______/       \/_________/ \/_____________/\/__________/\_\___\     /____/_/\_\/            \_\/\_\/      \_\/\_\/      \_\/\_\/
 *
 *
-*		2015 NCTU CG hw1
+*		2015 NCTU CG hw1-2
 */
-
-
+  
 #include "stdafx.h"
-#include "mesh.h"
+#define GLEW_STATIC
+#include "FreeImage.h"
+#include "glew.h"
 #include "glut.h"
+
+#include "mesh.h"
 #include "Object.h"
 #include "View.h"
 #include "Light.h"
+
 mesh *object;
 Scene* scene;
 View* view;
@@ -30,12 +34,14 @@ int windowSize[2];
 int selectedObj = 0;
 int offsetX, offsetY;
 float curDegree = 0;
+unsigned *tex_objs;
 
 const string localpath = "park\\";
 const string sceneName = localpath + "park.scene";
 const string viewName = localpath + "park.view";
 const string lightName = localpath + "park.light";
 
+void loadTexture(const char* filename, unsigned textureID);
 void light();
 void display();
 void reshape(GLsizei, GLsizei);
@@ -50,12 +56,31 @@ int main(int argc, char** argv)
 	lights = new Lights(lightName.c_str());
 	//view->show();
 	//object = new mesh("box.obj");
+	cout << scene->texture_num << endl;
+	//cout << scene->textures[0]->id << " " << scene->textures[0]->name << " " << scene->textures[0]->cube << endl;
+	cout << scene->textures[0]->id << endl;
+	/*for (int i = 0; i < scene->texture_num; i++){
+		cout << "ID: " << i << endl;
+		cout << scene->textures[i].id << " " << scene->textures[i].name <<" "<<scene->textures[i].cube <<endl;
+	}*/
+	tex_objs = new unsigned[scene->texture_num];
+	for (int i = 0; i < scene->texture_num; i++)
+		tex_objs[i] = 1;
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->viewport[2], view->viewport[3]);
-	glutInitWindowPosition(0, 0);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutCreateWindow("CG_HW1");
+	glutInitWindowPosition(view->viewport[0], view->viewport[1]);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutCreateWindow("CG_HW1-2");
+
+	glewInit();
+	FreeImage_Initialise();
+	glGenTextures(scene->texture_num, tex_objs);
+
+	for (int i = 0; i < scene->texture_num; i++)
+		loadTexture(scene->textures[i]->name.c_str(), i);
+	FreeImage_DeInitialise();
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
@@ -101,6 +126,57 @@ void light()
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lights->envambient);
 }
+
+void loadTexture(const char* filename, unsigned textureID){
+	int cubeId = scene->textures[textureID]->cube;
+	FIBITMAP* image = FreeImage_Load(FreeImage_GetFileType(filename, 0), filename);
+	FIBITMAP* b32Image = FreeImage_ConvertTo32Bits(image);
+	int width = FreeImage_GetWidth(b32Image);
+	int height = FreeImage_GetHeight(b32Image);
+	int textureType, texturePlace;
+	
+	if (scene->textures[textureID]->cube < 0){
+		textureType = GL_TEXTURE_2D;
+		texturePlace = GL_TEXTURE_2D;
+	}
+	else {
+		textureType = GL_TEXTURE_CUBE_MAP;
+		textureID -= cubeId;
+		switch (cubeId){
+		case 0:
+			texturePlace = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			break;
+		case 1:
+			texturePlace = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+			break;
+		case 2:
+			texturePlace = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+			break;
+		case 3:
+			texturePlace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+			break;
+		case 4:
+			texturePlace = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+			break;
+		case 5:
+			texturePlace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+			break;
+		}
+	}
+
+	glBindTexture(textureType, tex_objs[textureID]);
+	glTexImage2D(texturePlace, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(b32Image));
+	glGenerateMipmap(textureType);
+	glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	float largest;
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
+	glTexParameterf(textureType, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	FreeImage_Unload(b32Image);
+	FreeImage_Unload(image);
+}
+
 
 void display()
 {

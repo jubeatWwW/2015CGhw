@@ -1,0 +1,41 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   1-2/1-2.sdf
+#	modified:   1-2/1-2.v12.suo
+#	modified:   1-2/1-2/1-2.cpp
+#	modified:   1-2/1-2/1-2.vcxproj
+#	modified:   1-2/1-2/1-2.vcxproj.filters
+#	modified:   1-2/1-2/Debug/1-2.log
+#	modified:   1-2/1-2/Debug/1-2.obj
+#	modified:   1-2/1-2/Debug/1-2.tlog/CL.read.1.tlog
+#	modified:   1-2/1-2/Debug/1-2.tlog/CL.write.1.tlog
+#	modified:   1-2/1-2/Debug/1-2.tlog/cl.command.1.tlog
+#	modified:   1-2/1-2/Debug/1-2.tlog/link.command.1.tlog
+#	modified:   1-2/1-2/Debug/1-2.tlog/link.read.1.tlog
+#	modified:   1-2/1-2/Debug/1-2.tlog/link.write.1.tlog
+#	modified:   1-2/1-2/Debug/Light.obj
+#	modified:   1-2/1-2/Debug/Object'.obj
+#	new file:   1-2/1-2/Debug/Object.obj
+#	modified:   1-2/1-2/Debug/View.obj
+#	modified:   1-2/1-2/Debug/vc120.idb
+#	modified:   1-2/1-2/Debug/vc120.pdb
+#	new file:   1-2/1-2/Object.cpp
+#	modified:   1-2/1-2/Object.h
+#	new file:   1-2/1-2/check.bmp
+#	new file:   1-2/1-2/check_old.bmp
+#	new file:   1-2/1-2/environment.bmp
+#	new file:   1-2/1-2/room_env_map.bmp
+#	new file:   1-2/1-2/secondTexture.bmp
+#	new file:   1-2/1-2/wood.bmp
+#	modified:   1-2/Debug/1-2.exe
+#	modified:   1-2/Debug/1-2.ilk
+#	modified:   1-2/Debug/1-2.pdb
+#	modified:   1-2/include/FreeImage.h
+#	modified:   1-2/ipch/1-2-1feb7a0c/1-2-25b0ee5c.ipch
+#
+
