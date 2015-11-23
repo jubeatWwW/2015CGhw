@@ -14,18 +14,16 @@
 *
 *		2015 NCTU CG hw1-2
 */
-  
+
+
 #include "stdafx.h"
-#define GLEW_STATIC
+#include "mesh.h"
 #include "FreeImage.h"
 #include "glew.h"
 #include "glut.h"
-
-#include "mesh.h"
 #include "Object.h"
 #include "View.h"
 #include "Light.h"
-
 mesh *object;
 Scene* scene;
 View* view;
@@ -34,16 +32,16 @@ int windowSize[2];
 int selectedObj = 0;
 int offsetX, offsetY;
 float curDegree = 0;
-unsigned *tex_objs;
 
 const string localpath = "park\\";
 const string sceneName = localpath + "park.scene";
 const string viewName = localpath + "park.view";
 const string lightName = localpath + "park.light";
+unsigned *textureObj;
 
-void loadTexture(const char* filename, unsigned textureID);
 void light();
 void display();
+void textureRead(const char* filename, unsigned textureIndex);
 void reshape(GLsizei, GLsizei);
 void keyboard(unsigned char key, int x, int y);
 void mouse(int, int, int, int);
@@ -51,34 +49,29 @@ void motion(int x, int y);
 
 int main(int argc, char** argv)
 {
-	scene = new Scene(sceneName.c_str(),localpath.c_str());
+	scene = new Scene(sceneName.c_str(), localpath.c_str());
 	view = new View(viewName.c_str());
 	lights = new Lights(lightName.c_str());
+	textureObj = new unsigned[scene->texture_size - 1];
 	//view->show();
 	//object = new mesh("box.obj");
-	cout << scene->texture_num << endl;
-	//cout << scene->textures[0]->id << " " << scene->textures[0]->name << " " << scene->textures[0]->cube << endl;
-	cout << scene->textures[0]->id << endl;
-	/*for (int i = 0; i < scene->texture_num; i++){
-		cout << "ID: " << i << endl;
-		cout << scene->textures[i].id << " " << scene->textures[i].name <<" "<<scene->textures[i].cube <<endl;
-	}*/
-	tex_objs = new unsigned[scene->texture_num];
-	for (int i = 0; i < scene->texture_num; i++)
-		tex_objs[i] = 1;
+
+	for (int i = 1; i < scene->texture_size; i++){
+		cout << scene->textures[i] << " " << scene->cube[i] << endl;
+	}
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->viewport[2], view->viewport[3]);
 	glutInitWindowPosition(view->viewport[0], view->viewport[1]);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutCreateWindow("CG_HW1-2");
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutCreateWindow("CG_HW1");
 
 	glewInit();
 	FreeImage_Initialise();
-	glGenTextures(scene->texture_num, tex_objs);
-
-	for (int i = 0; i < scene->texture_num; i++)
-		loadTexture(scene->textures[i]->name.c_str(), i);
+	glGenTextures(scene->texture_size - 1, textureObj);
+	for (int i = 1; i < scene->texture_size; i++) {
+		textureRead(scene->textures[i], i);
+	}
 	FreeImage_DeInitialise();
 
 	glutDisplayFunc(display);
@@ -127,56 +120,53 @@ void light()
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lights->envambient);
 }
 
-void loadTexture(const char* filename, unsigned textureID){
-	int cubeId = scene->textures[textureID]->cube;
-	FIBITMAP* image = FreeImage_Load(FreeImage_GetFileType(filename, 0), filename);
-	FIBITMAP* b32Image = FreeImage_ConvertTo32Bits(image);
-	int width = FreeImage_GetWidth(b32Image);
-	int height = FreeImage_GetHeight(b32Image);
-	int textureType, texturePlace;
-	
-	if (scene->textures[textureID]->cube < 0){
-		textureType = GL_TEXTURE_2D;
-		texturePlace = GL_TEXTURE_2D;
-	}
-	else {
+void textureRead(const char* filename, unsigned textureIndex){
+	FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(filename, 0), filename);
+	FIBITMAP* bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
+	int bitmapWidth = FreeImage_GetWidth(bitmap32);
+	int bitmapHeight = FreeImage_GetHeight(bitmap32);
+	int textureType = GL_TEXTURE_2D;
+	int textureMode = GL_TEXTURE_2D;
+
+	int cubeNum = scene->cube[textureIndex];
+	if (cubeNum > 0){
 		textureType = GL_TEXTURE_CUBE_MAP;
-		textureID -= cubeId;
-		switch (cubeId){
+		textureIndex -= cubeNum;
+		switch (scene->cube[textureIndex]){
 		case 0:
-			texturePlace = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			textureMode = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 			break;
 		case 1:
-			texturePlace = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+			textureMode = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
 			break;
 		case 2:
-			texturePlace = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+			textureMode = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
 			break;
 		case 3:
-			texturePlace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+			textureMode = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
 			break;
 		case 4:
-			texturePlace = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+			textureMode = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
 			break;
 		case 5:
-			texturePlace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+			textureMode = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
 			break;
 		}
 	}
 
-	glBindTexture(textureType, tex_objs[textureID]);
-	glTexImage2D(texturePlace, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(b32Image));
+	glBindTexture(textureType, textureObj[textureIndex - 1]);
+	glTexImage2D(textureMode, 0, GL_RGBA8, bitmapWidth, bitmapHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(bitmap32));
 	glGenerateMipmap(textureType);
 	glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	float largest;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
-	glTexParameterf(textureType, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
+	glTexParameterf(textureType, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, largest);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	FreeImage_Unload(b32Image);
-	FreeImage_Unload(image);
-}
+	FreeImage_Unload(bitmap32);
+	FreeImage_Unload(bitmap);
 
+}
 
 void display()
 {
@@ -211,13 +201,13 @@ void display()
 
 	//注意light位置的設定，要在gluLookAt之後
 	light();
-	for (int i = 0; i < scene->objectNum; i++){
-		object = scene->objects[i]->object;
+	for (int a = 0; a < scene->objectNum; a++){
+		object = scene->objects[a]->object;
 
 		glPushMatrix();
-		glRotatef(scene->objects[i]->rotate[0], scene->objects[i]->rotate[1], scene->objects[i]->rotate[2], scene->objects[i]->rotate[3]);
-		glScalef(scene->objects[i]->scale[0], scene->objects[i]->scale[1], scene->objects[i]->scale[2]);
-		glTranslatef(scene->objects[i]->transform[0], scene->objects[i]->transform[1], scene->objects[i]->transform[2]);
+		glRotatef(scene->objects[a]->rotate[0], scene->objects[a]->rotate[1], scene->objects[a]->rotate[2], scene->objects[a]->rotate[3]);
+		glScalef(scene->objects[a]->scale[0], scene->objects[a]->scale[1], scene->objects[a]->scale[2]);
+		glTranslatef(scene->objects[a]->transform[0], scene->objects[a]->transform[1], scene->objects[a]->transform[2]);
 
 		int lastMaterial = -1;
 		for (size_t i = 0; i < object->fTotal; ++i)
@@ -260,7 +250,7 @@ void reshape(GLsizei w, GLsizei h)
 }
 
 void keyboard(unsigned char key, int x, int y){
-	//cout << key << endl;
+	cout << key << endl;
 	switch (key){
 	case 'w':
 		for (int i = 0; i < 3; i++)

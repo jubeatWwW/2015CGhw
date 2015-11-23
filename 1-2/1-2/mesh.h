@@ -111,7 +111,7 @@ public:
 	void	LoadMesh(std::string scene_file);
 	
 	mesh();
-	mesh(const char* obj_file,const char* localPath);
+	mesh(const char* obj_file, const char* localPath);
 	virtual ~mesh();
 
 	void Init(const char* obj_file);

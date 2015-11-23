@@ -5,13 +5,6 @@
 #include<string>
 #include<iostream>
 using namespace std;
-class Texture{
-public:
-	Texture(int iid, string iname, int icube);
-	int cube;
-	string name;
-	int id;
-};
 class Object{
 public:
 	Object(const char* meshName, const char* localPath);
@@ -19,8 +12,6 @@ public:
 	float scale[3];
 	float rotate[4];
 	float transform[3];
-	string textureType;
-	vector<Texture*> texture;
 };
 
 
@@ -29,8 +20,9 @@ public:
 	Scene(const char* sceneName, const char* localPath);
 	int objectNum;
 	Object* objects[10];
-	Texture* textures[20];
-	int texture_num;
+	char textures[30][100];
+	int cube[30];
+	int texture_size;
 };
 
 

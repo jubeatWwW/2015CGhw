@@ -1,7 +1,6 @@
 // mesh.cpp: implementation of the mesh class.
 //
 //////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "mesh.h"
 #include <iostream>
@@ -18,7 +17,7 @@ mesh::mesh(const char* obj_file, const char* localPath)
 {
 	mTotal = 0;		// mList[0] reserved for default meterial
 	vTotal = tTotal = nTotal = fTotal = 0;
-
+	
 	strcpy(obj_database, localPath);
 	char full_obj_file[100];
 	strcpy(full_obj_file, localPath);
