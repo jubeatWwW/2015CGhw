@@ -9,6 +9,8 @@ class Object{
 public:
 	Object(const char* meshName, const char* localPath);
 	mesh* object;
+	int textureMethod;
+	int textureID;
 	float scale[3];
 	float rotate[4];
 	float transform[3];

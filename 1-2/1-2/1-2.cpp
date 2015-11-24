@@ -121,7 +121,10 @@ void light()
 }
 
 void textureRead(const char* filename, unsigned textureIndex){
-	FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(filename, 0), filename);
+	char fullmapname[200];
+	strcpy(fullmapname, localpath.c_str());
+	strcat(fullmapname, filename);
+	FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(fullmapname, 0), fullmapname);
 	FIBITMAP* bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
 	int bitmapWidth = FreeImage_GetWidth(bitmap32);
 	int bitmapHeight = FreeImage_GetHeight(bitmap32);
@@ -175,6 +178,8 @@ void display()
 	glClearDepth(1.0f);                        // Depth Buffer (就是z buffer) Setup
 	glEnable(GL_DEPTH_TEST);                   // Enables Depth Testing
 	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.5f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//這行把畫面清成黑色並且清除z buffer
 
 	// viewport transformation
@@ -203,11 +208,47 @@ void display()
 	light();
 	for (int a = 0; a < scene->objectNum; a++){
 		object = scene->objects[a]->object;
+		//cout << scene->objects[a]->textureMethod << endl;
 
 		glPushMatrix();
+		glTranslatef(scene->objects[a]->transform[0], scene->objects[a]->transform[1], scene->objects[a]->transform[2]);
 		glRotatef(scene->objects[a]->rotate[0], scene->objects[a]->rotate[1], scene->objects[a]->rotate[2], scene->objects[a]->rotate[3]);
 		glScalef(scene->objects[a]->scale[0], scene->objects[a]->scale[1], scene->objects[a]->scale[2]);
-		glTranslatef(scene->objects[a]->transform[0], scene->objects[a]->transform[1], scene->objects[a]->transform[2]);
+		
+
+		switch (scene->objects[a]->textureMethod)
+		{
+		case 1:
+			glActiveTexture(GL_TEXTURE0);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, textureObj[scene->objects[a]->textureID -1]);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC0_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+			break;
+		case 2:
+			for (int multi = 0; multi < 2; multi++){
+				glActiveTexture(GL_TEXTURE0 + multi);
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, textureObj[scene->objects[a]->textureID + multi - 1]);
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+				glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+			}
+			break;
+		case 3:
+			glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+			glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+			glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
+			glEnable(GL_TEXTURE_GEN_R);
+			glEnable(GL_TEXTURE_CUBE_MAP);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			break;
+		default:
+			break;
+		}
+
 
 		int lastMaterial = -1;
 		for (size_t i = 0; i < object->fTotal; ++i)
@@ -229,6 +270,17 @@ void display()
 			glBegin(GL_TRIANGLES);
 			for (size_t j = 0; j < 3; ++j)
 			{
+				switch (scene->objects[a]->textureMethod){
+				case 1:
+					glTexCoord2fv(object->tList[object->faceList[i][j].t].ptr);
+					break;
+				case 2:
+					glMultiTexCoord2fv(GL_TEXTURE0, object->tList[object->faceList[i][j].t].ptr);
+					glMultiTexCoord2fv(GL_TEXTURE1, object->tList[object->faceList[i][j].t].ptr);
+					break;
+				}
+
+
 				//textex corrd. object->tList[object->faceList[i][j].t].ptr
 				glNormal3fv(object->nList[object->faceList[i][j].n].ptr);
 				glVertex3fv(object->vList[object->faceList[i][j].v].ptr);
@@ -237,6 +289,31 @@ void display()
 
 			glEnd();
 		}
+
+		switch (scene->objects[a]->textureMethod)
+		{
+		case 1:
+			glActiveTexture(GL_TEXTURE0);
+			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			break;
+		case 2:
+			for (int multi = 1; multi >=0; multi--){
+				glActiveTexture(GL_TEXTURE0+multi);
+				glDisable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			break;
+		case 3:
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_R);
+			glDisable(GL_TEXTURE_CUBE_MAP);
+			break;
+		default:
+			break;
+		}
+
 		glPopMatrix();
 	}
 
