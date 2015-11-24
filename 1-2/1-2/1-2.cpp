@@ -24,6 +24,7 @@
 #include "Object.h"
 #include "View.h"
 #include "Light.h"
+
 mesh *object;
 Scene* scene;
 View* view;
@@ -33,10 +34,10 @@ int selectedObj = 0;
 int offsetX, offsetY;
 float curDegree = 0;
 
-const string localpath = "park\\";
-const string sceneName = localpath + "park.scene";
-const string viewName = localpath + "park.view";
-const string lightName = localpath + "park.light";
+const string localpath = "Chess\\";
+const string sceneName = localpath + "Chess.scene";
+const string viewName = localpath + "Chess.view";
+const string lightName = localpath + "Chess.light";
 unsigned *textureObj;
 
 void light();
@@ -53,8 +54,6 @@ int main(int argc, char** argv)
 	view = new View(viewName.c_str());
 	lights = new Lights(lightName.c_str());
 	textureObj = new unsigned[scene->texture_size - 1];
-	//view->show();
-	//object = new mesh("box.obj");
 
 	for (int i = 1; i < scene->texture_size; i++){
 		cout << scene->textures[i] << " " << scene->cube[i] << endl;
@@ -64,11 +63,13 @@ int main(int argc, char** argv)
 	glutInitWindowSize(view->viewport[2], view->viewport[3]);
 	glutInitWindowPosition(view->viewport[0], view->viewport[1]);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutCreateWindow("CG_HW1");
+	glutCreateWindow("CG_HW1-2");
 
 	glewInit();
 	FreeImage_Initialise();
 	glGenTextures(scene->texture_size - 1, textureObj);
+	//texture ID == 1 ~ texture_size-1
+	//textureObj == 0 ~ texture_size-2
 	for (int i = 1; i < scene->texture_size; i++) {
 		textureRead(scene->textures[i], i);
 	}
@@ -87,10 +88,6 @@ int main(int argc, char** argv)
 
 void light()
 {
-	/*GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_ambient[] = {0.0, 0.0, 0.0, 1.0};
-	GLfloat light_position[] = {150.0, 150.0, 150.0, 1.0};*/
 
 	glShadeModel(GL_SMOOTH);
 
@@ -100,14 +97,6 @@ void light()
 	// enable lighting
 	glEnable(GL_LIGHTING);
 	// set light property
-
-
-	/*
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	*/
 
 	for (int i = 0; i < lights->lightNum; i++){
 		glEnable(GL_LIGHT0 + i);
@@ -121,9 +110,12 @@ void light()
 }
 
 void textureRead(const char* filename, unsigned textureIndex){
+	
+	//set localpath
 	char fullmapname[200];
 	strcpy(fullmapname, localpath.c_str());
 	strcat(fullmapname, filename);
+
 	FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(fullmapname, 0), fullmapname);
 	FIBITMAP* bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
 	int bitmapWidth = FreeImage_GetWidth(bitmap32);
@@ -131,10 +123,10 @@ void textureRead(const char* filename, unsigned textureIndex){
 	int textureType = GL_TEXTURE_2D;
 	int textureMode = GL_TEXTURE_2D;
 
+	//cubeNum -> (-1 == single or multi texture) (0~5 == cube 0~5)
 	int cubeNum = scene->cube[textureIndex];
-	if (cubeNum > 0){
+	if (cubeNum >= 0){
 		textureType = GL_TEXTURE_CUBE_MAP;
-		textureIndex -= cubeNum;
 		switch (scene->cube[textureIndex]){
 		case 0:
 			textureMode = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
@@ -155,7 +147,9 @@ void textureRead(const char* filename, unsigned textureIndex){
 			textureMode = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
 			break;
 		}
+		textureIndex -= cubeNum;
 	}
+
 
 	glBindTexture(textureType, textureObj[textureIndex - 1]);
 	glTexImage2D(textureMode, 0, GL_RGBA8, bitmapWidth, bitmapHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(bitmap32));
@@ -183,21 +177,17 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//這行把畫面清成黑色並且清除z buffer
 
 	// viewport transformation
-	//glViewport(0, 0, windowSize[0], windowSize[1]);
-	//cout << view->viewport[0];
 	glViewport(view->viewport[0], view->viewport[1], view->viewport[2], view->viewport[3]);
 
 	// projection transformation
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluPerspective(60.0, (GLfloat)windowSize[0]/(GLfloat)windowSize[1], 1.0, 1000.0);
+
 	gluPerspective(view->fovy, (GLfloat)view->viewport[3] / (GLfloat)view->viewport[2], view->dnear, view->dfar);
 	// viewing and modeling transformation
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	/*gluLookAt(	200.0, 300.0, 150.0,// eye
-	0.0, 0.0, 0.0,     // center
-	0.0, 1.0, 0.0);    // up*/
+
 	gluLookAt(view->eye[0], view->eye[1], view->eye[2],
 		view->vat[0], view->vat[1], view->vat[2],
 		view->vup[0], view->vup[1], view->vup[2]);
@@ -215,7 +205,7 @@ void display()
 		glRotatef(scene->objects[a]->rotate[0], scene->objects[a]->rotate[1], scene->objects[a]->rotate[2], scene->objects[a]->rotate[3]);
 		glScalef(scene->objects[a]->scale[0], scene->objects[a]->scale[1], scene->objects[a]->scale[2]);
 		
-
+		//bind texture
 		switch (scene->objects[a]->textureMethod)
 		{
 		case 1:
@@ -270,6 +260,7 @@ void display()
 			glBegin(GL_TRIANGLES);
 			for (size_t j = 0; j < 3; ++j)
 			{
+				//draw texture
 				switch (scene->objects[a]->textureMethod){
 				case 1:
 					glTexCoord2fv(object->tList[object->faceList[i][j].t].ptr);
@@ -290,6 +281,7 @@ void display()
 			glEnd();
 		}
 
+		//unbind texture
 		switch (scene->objects[a]->textureMethod)
 		{
 		case 1:

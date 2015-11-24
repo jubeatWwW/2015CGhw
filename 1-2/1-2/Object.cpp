@@ -30,12 +30,14 @@ Scene::Scene(const char* sceneName, const char* localPath){
 			for (int i = 0; i < 3; i++)
 				fscanf(scene, "%f", &objects[objectNum]->transform[i]);
 
+			//set objects' texture id and method
 			objects[objectNum]->textureID = curTexID;
 			objects[objectNum]->textureMethod = curTexMed;
 			objectNum++;
 		}
 		else{
 			if (feof(scene)) break;
+			//read texture
 			if (strcmp(str, "single-texture") == 0){
 				curTexMed = 1;
 				curTexID = texture_size;
@@ -60,6 +62,9 @@ Scene::Scene(const char* sceneName, const char* localPath){
 					strcpy(textures[texture_size], textureName);
 					cube[texture_size++] = i;
 				}
+			}
+			else if(strcmp(str, "no-texture") == 0){
+				curTexMed = 0;
 			}
 		}
 	}
