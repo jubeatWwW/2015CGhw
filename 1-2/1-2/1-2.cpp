@@ -88,6 +88,27 @@ int main(int argc, char** argv)
 
 void light()
 {
+	GLfloat glfSpecular[10][4];
+	GLfloat glfDiffuse[10][4];
+	GLfloat glfAmbient[10][4];
+	GLfloat glfPosition[10][4];
+	GLfloat glfEnvAmbient[3];
+
+	for (int i = 0; i < lights->lightNum; i++){
+		for (int j = 0; j < 3; j++){
+			glfSpecular[i][j] = lights->lightgroup[i]->specular[j];
+			glfDiffuse[i][j] = lights->lightgroup[i]->diffuse[j];
+			glfPosition[i][j] = lights->lightgroup[i]->position[j];
+			glfAmbient[i][j] = lights->lightgroup[i]->ambient[j];
+		}
+		glfSpecular[i][3] = 1.0f;
+		glfDiffuse[i][3] = 1.0f;
+		glfPosition[i][3] = 1.0f;
+		glfAmbient[i][3] = 1.0f;
+	}
+	for (int i = 0; i < 3; i++) {
+		glfEnvAmbient[i] = lights->envambient[i];
+	}
 
 	glShadeModel(GL_SMOOTH);
 
@@ -100,13 +121,13 @@ void light()
 
 	for (int i = 0; i < lights->lightNum; i++){
 		glEnable(GL_LIGHT0 + i);
-		glLightfv(GL_LIGHT0 + i, GL_POSITION, lights->lightgroup[i]->position);
-		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, lights->lightgroup[i]->diffuse);
-		glLightfv(GL_LIGHT0 + i, GL_SPECULAR, lights->lightgroup[i]->specular);
-		glLightfv(GL_LIGHT0 + i, GL_AMBIENT, lights->lightgroup[i]->ambient);
+		glLightfv(GL_LIGHT0 + i, GL_POSITION, glfPosition[i]);
+		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, glfDiffuse[i]);
+		glLightfv(GL_LIGHT0 + i, GL_SPECULAR, glfSpecular[i]);
+		glLightfv(GL_LIGHT0 + i, GL_AMBIENT, glfAmbient[i]);
 	}
 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lights->envambient);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, glfEnvAmbient);
 }
 
 void textureRead(const char* filename, unsigned textureIndex){
@@ -127,7 +148,7 @@ void textureRead(const char* filename, unsigned textureIndex){
 	int cubeNum = scene->cube[textureIndex];
 	if (cubeNum >= 0){
 		textureType = GL_TEXTURE_CUBE_MAP;
-		switch (scene->cube[textureIndex]){
+		switch (cubeNum){
 		case 0:
 			textureMode = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 			break;
@@ -177,13 +198,13 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//這行把畫面清成黑色並且清除z buffer
 
 	// viewport transformation
-	glViewport(view->viewport[0], view->viewport[1], view->viewport[2], view->viewport[3]);
+	glViewport(0, 0, windowSize[0], windowSize[1]);
 
 	// projection transformation
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	gluPerspective(view->fovy, (GLfloat)view->viewport[3] / (GLfloat)view->viewport[2], view->dnear, view->dfar);
+	gluPerspective(view->fovy, (GLfloat)windowSize[0] / (GLfloat)windowSize[1], view->dnear, view->dfar);
 	// viewing and modeling transformation
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -196,10 +217,13 @@ void display()
 
 	//注意light位置的設定，要在gluLookAt之後
 	light();
+	int lastMaterial;
+
 	for (int a = 0; a < scene->objectNum; a++){
 		object = scene->objects[a]->object;
 		//cout << scene->objects[a]->textureMethod << endl;
 
+		lastMaterial = -1;
 		glPushMatrix();
 		glTranslatef(scene->objects[a]->transform[0], scene->objects[a]->transform[1], scene->objects[a]->transform[2]);
 		glRotatef(scene->objects[a]->rotate[0], scene->objects[a]->rotate[1], scene->objects[a]->rotate[2], scene->objects[a]->rotate[3]);
@@ -240,7 +264,7 @@ void display()
 		}
 
 
-		int lastMaterial = -1;
+		
 		for (size_t i = 0; i < object->fTotal; ++i)
 		{
 			// set material property if this face used different material
@@ -297,10 +321,10 @@ void display()
 			}
 			break;
 		case 3:
-			glDisable(GL_TEXTURE_GEN_S);
-			glDisable(GL_TEXTURE_GEN_T);
-			glDisable(GL_TEXTURE_GEN_R);
 			glDisable(GL_TEXTURE_CUBE_MAP);
+			glDisable(GL_TEXTURE_GEN_R);
+			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_S);
 			break;
 		default:
 			break;
