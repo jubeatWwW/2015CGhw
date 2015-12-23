@@ -22,6 +22,15 @@
 #include "Object.h"
 #include "View.h"
 #include "Light.h"
+#include "Vector3D.h"
+
+#define	pass1 0x01
+#define	pass2 0x02
+#define	pass3 0x03
+#define	pass4 0x04
+#define	Depth_With_Field 0x05
+#define	Depth_Without_Field 0x06
+
 mesh *object;
 Scene* scene;
 View* view;
@@ -44,6 +53,9 @@ void keyboard(unsigned char key, int x, int y);
 void mouse(int, int, int, int);
 void motion(int x, int y);
 
+void drawObject();
+void drawShadowVol();
+
 int main(int argc, char** argv)
 {
 	scene = new Scene(sceneName.c_str(), localpath.c_str());
@@ -55,7 +67,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->viewport[2], view->viewport[3]);
 	glutInitWindowPosition(0, 0);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutCreateWindow("CG_HW2");
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -111,8 +123,14 @@ void display()
 	glEnable(GL_DEPTH_TEST);                   // Enables Depth Testing
 	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
 	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BACK);
 	glAlphaFunc(GL_GREATER, 0.5f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//這行把畫面清成黑色並且清除z buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );//這行把畫面清成黑色並且清除z buffer
+
+	
+
 
 	// viewport transformation
 	//glViewport(0, 0, windowSize[0], windowSize[1]);
@@ -138,6 +156,14 @@ void display()
 
 	//注意light位置的設定，要在gluLookAt之後
 	light();
+	
+	drawObject();
+	
+
+	glutSwapBuffers();
+}
+
+void drawObject(){
 	for (int i = 0; i < scene->objectNum; i++){
 		object = scene->objects[i]->object;
 
@@ -177,8 +203,51 @@ void display()
 		}
 		glPopMatrix();
 	}
+}
 
-	glutSwapBuffers();
+void drawShadowVol(){
+	for (int i = 0; i < scene->objectNum; i++){
+		object = scene->objects[i]->object;
+
+		glPushMatrix();
+		glTranslatef(scene->objects[i]->transform[0], scene->objects[i]->transform[1], scene->objects[i]->transform[2]);
+		glRotatef(scene->objects[i]->rotate[0], scene->objects[i]->rotate[1], scene->objects[i]->rotate[2], scene->objects[i]->rotate[3]);
+		glScalef(scene->objects[i]->scale[0], scene->objects[i]->scale[1], scene->objects[i]->scale[2]);
+
+
+		int lastMaterial = -1;
+		for (size_t i = 0; i < object->fTotal; ++i)
+		{
+			// set material property if this face used different material
+			if (lastMaterial != object->faceList[i].m)
+			{
+				lastMaterial = (int)object->faceList[i].m;
+				glMaterialfv(GL_FRONT, GL_AMBIENT, object->mList[lastMaterial].Ka);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, object->mList[lastMaterial].Kd);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, object->mList[lastMaterial].Ks);
+				glMaterialfv(GL_FRONT, GL_SHININESS, &object->mList[lastMaterial].Ns);
+
+				//you can obtain the texture name by object->mList[lastMaterial].map_Kd
+				//load them once in the main function before mainloop
+				//bind them in display function here
+			}
+
+			
+
+			glBegin(GL_TRIANGLES);
+			for (size_t j = 0; j < 3; ++j)
+			{
+				//textex corrd. object->tList[object->faceList[i][j].t].ptr
+				glNormal3fv(object->nList[object->faceList[i][j].n].ptr);
+				glVertex3fv(object->vList[object->faceList[i][j].v].ptr);
+			}
+
+
+			glEnd();
+		}
+		glPopMatrix();
+	}
+
 }
 
 void reshape(GLsizei w, GLsizei h)
