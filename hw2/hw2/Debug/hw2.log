@@ -1,4 +1,4 @@
-﻿已經開始建置於 2015/12/23 下午 06:59:03。
+﻿已經開始建置於 2015/12/23 下午 10:08:31。
      1>節點 2 (Build 目標) 上的專案 "D:\Course\三上\計算機圖學概論\homework\hw2\hw2\hw2.vcxproj"。
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"D:\Course\三上\計算機圖學概論\homework\hw2\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\hw2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt hw2.cpp
@@ -16,4 +16,4 @@
 
 建置成功。
 
-經過時間 00:00:00.27
+經過時間 00:00:00.25

@@ -12,7 +12,6 @@
  */
 #include "stdafx.h"
 #include "Vector3D.h"
-#include <iostream>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
